@@ -1,5 +1,6 @@
 package com.miguelzambrana.githubcontributors.httpservice.handlers;
 
+import com.miguelzambrana.githubcontributors.configuration.Configuration;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
@@ -15,8 +16,9 @@ public class VersionHandler implements HttpHandler {
             exchange.dispatch(this);
             return;
         }
-        // TODO Get version from properties
-        String version = "1.0.0";
+
+        // Show Service version
+        String version = Configuration.ServiceVersion;
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
         exchange.getResponseSender().send(version);
     }

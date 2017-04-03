@@ -3,6 +3,7 @@ package com.miguelzambrana.githubcontributors.httpservice;
 import com.miguelzambrana.githubcontributors.httpservice.handlers.GitHubHandler;
 import com.miguelzambrana.githubcontributors.httpservice.handlers.HelloHandler;
 import com.miguelzambrana.githubcontributors.httpservice.handlers.VersionHandler;
+import com.miguelzambrana.githubcontributors.configuration.Configuration;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -24,7 +25,7 @@ public class HTTPService {
         // Create Undertow service on defined port
         // TODO Set port defined by Properties
         Undertow server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
+                .addHttpListener(Configuration.HttpServicePort, "localhost")
                 .setHandler(HTTPService.getHandlerChain())
                 .build();
         server.start();
