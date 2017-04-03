@@ -1,0 +1,47 @@
+group 'com.miguelzambrana'
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+apply plugin: 'maven'
+
+def name = "githubContributors"
+def curVersion = "1.0.0"
+
+sourceCompatibility = 1.8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+ext.mainClass = "com.miguelzambrana.githubcontributors.GitHubContributorsService"
+mainClassName = "com.miguelzambrana.githubcontributors.GitHubContributorsService"
+applicationDefaultJvmArgs = ["-Dlog4j.configurationFile=conf/log4j2.xml"]
+
+repositories {
+    mavenCentral()
+}
+
+task fatJar(type: Jar) {
+    baseName = name
+    version = curVersion
+    manifest {
+        attributes 'Main-Class': 'com.miguelzambrana.githubcontributors.GitHubContributorsService'
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }}
+
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
+
+    with jar
+}
+
+dependencies {
+
+    compile 'org.json:json:20160212'
+    compile 'com.mashape.unirest:unirest-java:1.4.9'
+
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.+'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.+'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

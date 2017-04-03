@@ -1,0 +1,10 @@
+bin
+build
+*.class
+
+.gradle/
+gradle/
+.idea/
+idea/
+
+logs/
