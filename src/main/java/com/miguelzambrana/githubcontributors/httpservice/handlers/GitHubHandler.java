@@ -2,7 +2,8 @@ package com.miguelzambrana.githubcontributors.httpservice.handlers;
 
 import com.google.gson.Gson;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
-import com.miguelzambrana.githubcontributors.cache.TopCache;
+import com.miguelzambrana.githubcontributors.cache.TopContributorsCache;
+import com.miguelzambrana.githubcontributors.monitor.Monitor;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
@@ -29,7 +30,8 @@ public class GitHubHandler implements HttpHandler {
         // Current Time on start request
         long initTime = System.currentTimeMillis();
 
-        try {
+        try
+        {
             // Get paths from request
             String[] paths = exchange.getRequestPath().split("/");
 
@@ -54,13 +56,14 @@ public class GitHubHandler implements HttpHandler {
                 // If top operation of location is empty, can't process it...
                 exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                 exchange.getResponseSender().send("Can't process operation!!");
+
+                // Add error request to Monitor
+                Monitor.addErrorRequest();
             }
             else
             {
-                logger.info ("Do request for " + sTop + " and location " + sLocation);
-
                 // If we have location, get it from Cache
-                List<GitHubUserBean> topUsers = TopCache.getTopUsers(sLocation);
+                List<GitHubUserBean> topUsers = TopContributorsCache.getTopUsers(sLocation);
 
                 // Get Number of users
                 int topNumber = Integer.valueOf(sTop.replace("top",""));
@@ -76,8 +79,16 @@ public class GitHubHandler implements HttpHandler {
                 exchange.getResponseSender().send(jsonResponse);
             }
         }
-        finally {
-            logger.info("Request process time: " + ( System.currentTimeMillis() - initTime ) + "ms");
+        finally
+        {
+            // Calculate request total time (in millis)
+            long requestTime = ( System.currentTimeMillis() - initTime );
+
+            // Add request time to Monitor
+            Monitor.addRequestTime(requestTime);
+
+            // Show request time
+            logger.info("Request process time: " + requestTime + "ms");
         }
     }
 

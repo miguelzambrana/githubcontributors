@@ -3,6 +3,7 @@ package com.miguelzambrana.githubcontributors.cache;
 import com.hazelcast.core.IMap;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
 import com.miguelzambrana.githubcontributors.githubapi.GitHubInterface;
+import com.miguelzambrana.githubcontributors.monitor.Monitor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,12 +13,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by miki on 3/04/17.
  */
-public class TopCache {
+public class TopContributorsCache {
 
     private static IMap<String,List<GitHubUserBean>> hazelcastMap =
             CacheClient.getInstance().getClient().getMap ( "GITHUB_TOP" );
 
-    public static final Logger logger = LogManager.getLogger(TopCache.class.getName());
+    public static final Logger logger = LogManager.getLogger(TopContributorsCache.class.getName());
 
     public static List<GitHubUserBean> getTopUsers ( String location ) {
 
@@ -31,13 +32,17 @@ public class TopCache {
 
             // If topUsers is not null, return values
             if ( topUsers != null ) {
-                 logger.info("Read from Cache");
+                 // Add hit Cache to Monitor
+                 Monitor.addRequestFromCache();
+
                  return topUsers;
             }
 
             // If don't have data from Cache, do request to GitHub API
-            logger.info("Do request to GitHub");
             topUsers = GitHubInterface.gitHubRequest(location);
+
+            // Add hit Cache to Monitor
+            Monitor.addRequestFromGitHub();
 
             // If result is not null, put to Cache for an hour...
             if ( topUsers != null ) {
