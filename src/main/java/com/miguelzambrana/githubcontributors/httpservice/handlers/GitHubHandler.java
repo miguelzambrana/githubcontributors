@@ -2,11 +2,14 @@ package com.miguelzambrana.githubcontributors.httpservice.handlers;
 
 import com.google.gson.Gson;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
+import com.miguelzambrana.githubcontributors.cache.TopCache;
 import com.miguelzambrana.githubcontributors.githubapi.GitHubInterface;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -14,6 +17,8 @@ import java.util.List;
  * Created by miki on 3/04/17.
  */
 public class GitHubHandler implements HttpHandler {
+
+    public static final Logger logger = LogManager.getLogger(GitHubHandler.class.getName());
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
@@ -48,11 +53,11 @@ public class GitHubHandler implements HttpHandler {
             exchange.getResponseSender().send("Can't process operation!!");
         }
         else
-            {
-            System.out.println("Do request for " + sTop + " and location " + sLocation);
+        {
+            logger.info ("Do request for " + sTop + " and location " + sLocation);
 
-            // Else, process current operation
-            List<GitHubUserBean> topUsers = GitHubInterface.gitHubRequest(sLocation);
+            // If we have location, get it from Cache
+            List<GitHubUserBean> topUsers = TopCache.getTopUsers(sLocation);
 
             // Get Number of users
             int topNumber = Integer.valueOf(sTop.replace("top",""));

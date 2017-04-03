@@ -78,34 +78,4 @@ public class GitHubInterface {
         return topUsers;
     }
 
-    public static void getAllUsers ()
-    {
-        try
-        {
-            int lastUserIdIteration = 0;
-
-            for ( int i = 0 ; i < 100 ; i++ ) {
-                HttpResponse<JsonNode> jsonResponse = Unirest.get("https://api.github.com/users")
-                        .header("accept", "application/json")
-                        .queryString("since", lastUserIdIteration)
-                        .asJson();
-
-                int userId = 0;
-
-                for ( Object user : jsonResponse.getBody().getArray() ) {
-                    String login    = ((JSONObject)user).getString("login");
-                    userId          = ((JSONObject)user).getInt("id");
-                    System.out.println(" > Current User: " + login + " (" + userId + ")");
-                }
-
-                lastUserIdIteration = userId;
-            }
-
-        } catch (UnirestException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }
