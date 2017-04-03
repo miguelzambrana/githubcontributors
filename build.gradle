@@ -37,8 +37,10 @@ task fatJar(type: Jar) {
 
 dependencies {
 
-    compile 'org.json:json:20160212'
+    compile('com.google.code.gson:gson:2.+')
     compile 'com.mashape.unirest:unirest-java:1.4.9'
+    compile group: 'io.undertow', name: 'undertow-core', version: '1.4.11.Final'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.+'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.+'

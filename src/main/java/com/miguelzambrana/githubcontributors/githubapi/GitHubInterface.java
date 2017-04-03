@@ -23,7 +23,7 @@ public class GitHubInterface {
      * @param location
      * @return
      */
-    public static List<GitHubUserBean> gitHubRequest (String location ) {
+    public static List<GitHubUserBean> gitHubRequest ( String location ) {
 
         // Create empty user list
         List<GitHubUserBean> topUsers = new ArrayList<>();
@@ -40,7 +40,7 @@ public class GitHubInterface {
                 // Do request to GitHub Search API
                 // Query: get users for location, sort by repositories desc (current page)
                 HttpResponse<JsonNode> jsonResponse = Unirest.get("https://api.github.com/search/users")
-                        //.basicAuth("username","password")
+                        //.basicAuth("account","username")
                         .header("accept", "application/json")
                         .queryString("q", "location:=" + location)
                         .queryString("sort", "repositories")
