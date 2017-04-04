@@ -52,7 +52,7 @@ Version Request
 
 - http://localhost:8080/version
 ```text
-GitHubContributorsService v1.0.3
+GitHubContributorsService v1.0.4
 ```
 
 ### Top Requests
