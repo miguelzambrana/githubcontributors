@@ -18,9 +18,13 @@ public class Configuration
 
     public  static int              HttpServicePort         = 8080;
     public  static String           HazelCastGroup          = "GitHubContributors";
+    public  static int              ThreadExecutorPoolSize  = 32;
+    public  static int              ThreadExecutorQueueSize = 1000000;
+    public  static String           ServiceHttpHost         = "localhost";
 
-    public  static final String     ServiceVersion          = "1.0.2";
+    public  static final String     ServiceVersion          = "1.0.3";
     public  static final String     ConfigFileName          = "./conf/configuration.properties";
+
     private static Properties       properties = null;
 
     public static void loadProperties ()

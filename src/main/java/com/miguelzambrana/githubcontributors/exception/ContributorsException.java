@@ -1,4 +1,4 @@
-package com.miguelzambrana.githubcontributors.exceptions;
+package com.miguelzambrana.githubcontributors.exception;
 
 /**
  * Created by miki on 4/04/17.

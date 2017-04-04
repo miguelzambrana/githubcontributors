@@ -5,7 +5,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
-import com.miguelzambrana.githubcontributors.exceptions.ContributorsException;
+import com.miguelzambrana.githubcontributors.exception.ContributorsException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;

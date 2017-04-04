@@ -1,5 +1,5 @@
 # githubcontributors
-Current Version: 1.0.2
+Current Version: 1.0.3
 
 ![GitHub Contributors](http://www.aha.io/assets/integration_logos/github-bb449e0ffbacbcb7f9c703db85b1cf0b.png)
 
@@ -13,13 +13,16 @@ java -Dlog4j.configurationFile=conf/log4j2.xml -jar build/libs/githubContributor
 ```
 
 ## Config And port
-Service is running HTTPService by default in port 8080
+Service is running HTTPService by default in port 8080, and host is "localhost", but you can change
+it for production environment.
+
 You can config the service properties in the file "conf/configuration.properties"
 
 Default values:
 ```text
 HttpServicePort=8080
 HazelCastGroup=GitHubContributors
+ServiceHttpHost=localhost
 ```
 
 ## Request samples
@@ -80,7 +83,7 @@ You can specify operations top operations with number less or equals than 50, fo
 ]
 ```
 
-- http://localhost:8090/top50/Barcelona
+- http://localhost:8090/top5/Barcelona
 ```json
 [
     {
@@ -107,13 +110,8 @@ You can specify operations top operations with number less or equals than 50, fo
     "userId": 1731699,
     "login": "netmarti",
     "location": "Barcelona"
-    },
-    {
-    "userId": 53455,
-    "login": "areski",
-    "location": "Barcelona"
     }
-    (...)
+]
 ```
 
 ## Scale
@@ -164,6 +162,73 @@ and at the same time, cache the results (for an hour) in order to request to Git
 This cache allows to improve the request average time when the user request the same location 
 (with different or the same top operation).
 
+## Performance improves v1.0.2 to v1.0.3
+The service added a first Cache layer using Caffeine libraries in order to improve the efficiency of Cache
+hits. In this type of paradigm, Cache has a high percentage of hits, since the variability of locations 
+is high, but there is a greater probability that different tops are requested for the same cities; 
+So it is very interesting to improve the performance in the cache (adding a first layer lighter 
+than Hazelcast we can improve the performance).
+
+By the other hand, in case of Miss, the service will send a request to GitHub, and the service will
+update the different cache levels asynchronously, in order to improve the response time.
+
+### Benchmark evolution from v1.0.2 to v1.0.3 
+
+- WRK Results for Service v1.0.2 (based only in Hazelcast) - Scenario with always HITS
+```
+Running 30s test @ http://localhost:8080/top5/Barcelona
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    11.34ms   16.70ms 467.19ms   92.93%
+    Req/Sec     3.80k     1.67k    8.84k    63.91%
+  445425 requests in 30.09s, 201.78MB read
+Requests/sec:  14800.77
+Transfer/sec:      6.70MB
+
+Running 30s test @ http://localhost:8080/top5/Barcelona
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    10.67ms   16.57ms 408.82ms   94.40%
+    Req/Sec     3.86k     1.77k    8.69k    63.19%
+  446956 requests in 30.09s, 202.47MB read
+  Socket errors: connect 144, read 0, write 0, timeout 0
+Requests/sec:  14855.35
+Transfer/sec:      6.73MB
+```
+
+- WRK Results for Service v1.0.3 (based on Caffeine in first layer) - Scenario with always HITS
+```
+Running 30s test @ http://localhost:8080/top5/Barcelona
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     7.17ms   14.79ms 411.24ms   98.80%
+    Req/Sec     5.67k     1.69k   11.43k    69.82%
+  677442 requests in 30.03s, 306.88MB read
+Requests/sec:  22556.23
+Transfer/sec:     10.22MB
+
+Running 30s test @ http://localhost:8080/top5/Barcelona
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     7.56ms   12.26ms 413.53ms   98.11%
+    Req/Sec     4.92k     1.68k   10.55k    69.77%
+  587563 requests in 30.10s, 266.16MB read
+Requests/sec:  19523.08
+Transfer/sec:      8.84MB
+
+Running 30s test @ http://localhost:8080/top5/Barcelona
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     7.01ms   12.13ms 408.51ms   98.82%
+    Req/Sec     5.49k     1.63k   11.29k    68.06%
+  655234 requests in 30.03s, 296.82MB read
+  Socket errors: connect 0, read 1, write 0, timeout 0
+Requests/sec:  21816.32
+Transfer/sec:      9.88MB
+```
+
+We can see an improvement in the performance only using Caffeine Libraries
+
 ## Monitor
 Service logger show KPIs about the Service each minute like the sample:
 
@@ -183,7 +248,14 @@ Service logger show KPIs about the Service each minute like the sample:
 - UnirestIO: Lib allows to do request to GitHub API (so fast and clear)
 - UndertowIO: WebContainer lib (so lighty and fast)
 - GSON (Google): Lib to generate Json messages
-- HazelCast: Distributed Cache (in order to scale with more nodes, and cache response from GitHub API)
+- Caffeine Libs: Local Cache - Level 1 (in order to improve performance for a Cache Hits, it is better than HazelCast solution)
+- HazelCast: Distributed Cache - Level 2 (in order to scale with more nodes, and cache response from GitHub API)
+
+## Benchmark tools
+- wrk: wrk is a modern HTTP benchmarking tool capable of generating significant load when run on a 
+single multi-core CPU. It combines a multithreaded design with scalable event notification systems 
+such as epoll and kqueue. More info: https://github.com/wg/wrk
+
 
 ## Author
 Miguel Ángel Zambrana

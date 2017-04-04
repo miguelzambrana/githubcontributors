@@ -25,7 +25,7 @@ public class HTTPService {
         // Create Undertow service on defined port
         // TODO Set port defined by Properties
         Undertow server = Undertow.builder()
-                .addHttpListener(Configuration.HttpServicePort, "localhost")
+                .addHttpListener(Configuration.HttpServicePort, Configuration.ServiceHttpHost)
                 .setHandler(HTTPService.getHandlerChain())
                 .build();
         server.start();

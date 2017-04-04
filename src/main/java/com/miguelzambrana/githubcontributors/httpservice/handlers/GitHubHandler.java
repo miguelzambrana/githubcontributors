@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.miguelzambrana.githubcontributors.bean.ErrorMessage;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
 import com.miguelzambrana.githubcontributors.cache.TopContributorsCache;
-import com.miguelzambrana.githubcontributors.exceptions.ContributorsException;
+import com.miguelzambrana.githubcontributors.exception.ContributorsException;
 import com.miguelzambrana.githubcontributors.monitor.Monitor;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -147,9 +147,6 @@ public class GitHubHandler implements HttpHandler {
 
             // Add request time to Monitor
             Monitor.addRequestTime(requestTime);
-
-            // Show request time
-            logger.info("Request process time: " + requestTime + "ms");
         }
     }
 
