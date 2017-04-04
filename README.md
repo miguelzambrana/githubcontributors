@@ -20,12 +20,22 @@ Service is running HTTPService by default in port 8080, and host is "localhost",
 it for production environment. Of course you can change to port 80 if you have a root privileges in
 the machine.
 
+Properties Values:
+- HttpServicePort: HTTP Service listening port
+- HazelCastGroup: HazelCast cache group (for connect between nodes)
+- GitHubAccessToken: GitHub access token to send request to GitHub API
+- TokenAuthEnabled: Mandatory token use in the API requests
+- ServiceHttpHost: Host Service name (localhost in stage environment)
+- TokenGeneratorEnabled: Enable module to generate token for different requests
+
 You can config the service properties in the file "conf/configuration.properties"
 
 Default values:
 ```properties
 HttpServicePort=8080
 HazelCastGroup=GitHubContributors
+# GitHub Access Token to send request to GitHub API
+GitHubAccessToken=93a0f3c55f46655af06e364c880cbe9714b36ba6
 TokenAuthEnabled=true
 # Defined hostname for production environment
 ServiceHttpHost=localhost
@@ -37,6 +47,8 @@ Example environment values:
 ```properties
 HttpServicePort=80
 HazelCastGroup=GitHubContributors
+# GitHub Access Token to send request to GitHub API
+GitHubAccessToken=93a0f3c55f46655af06e364c880cbe9714b36ba6
 TokenAuthEnabled=true
 # Defined hostname for production environment
 ServiceHttpHost=githubcontributors.com

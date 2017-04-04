@@ -24,6 +24,7 @@ public class Configuration
     public  static boolean          TokenAuthEnabled        = true;
     public  static boolean          TokenGeneratorEnabled   = true;
     public  static String           TokenPrivateKey         = "NewRelicGo";
+    public  static String           GitHubAccessToken       = "93a0f3c55f46655af06e364c880cbe9714b36ba6";
 
     public  static final String     ServiceVersion          = "1.0.4";
     public  static final String     ConfigFileName          = "./conf/configuration.properties";

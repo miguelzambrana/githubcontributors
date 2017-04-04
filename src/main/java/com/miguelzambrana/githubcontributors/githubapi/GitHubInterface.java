@@ -5,6 +5,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
+import com.miguelzambrana.githubcontributors.configuration.Configuration;
 import com.miguelzambrana.githubcontributors.exception.ContributorsException;
 import org.json.JSONObject;
 
@@ -37,8 +38,6 @@ public class GitHubInterface {
             // We try to get always top 50 users from GitHub search API (From 2 first pages)
             while ( ( topUsers.size() < 50 ) && ( currentPage < 3 ) ) {
 
-                // TODO OAuth to get more requests
-
                 // Do request to GitHub Search API
                 // Query: get users for location, sort by repositories desc (current page)
                 HttpResponse<JsonNode> jsonResponse = Unirest.get("https://api.github.com/search/users")
@@ -48,6 +47,9 @@ public class GitHubInterface {
                         .queryString("sort", "repositories")
                         .queryString("order", "desc")
                         .queryString("page", currentPage)
+                        .queryString("access_token", Configuration.GitHubAccessToken)
+                        .queryString("scope","")
+                        .queryString("token_type","bearer")
                         .asJson();
 
                 // Increment current page for the next search
