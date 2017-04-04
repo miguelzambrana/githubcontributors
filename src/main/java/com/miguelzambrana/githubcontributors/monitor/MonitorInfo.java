@@ -19,11 +19,24 @@ class MonitorInfo implements Runnable {
     @Override
     public void run () {
 
+        // Define KPI vars
+        double percentHitCache;
+        double percentMissCache;
+        double percentErrorRequest;
+        double avgRequestTime;
+
         // Calculate percent and average values
-        double percentHitCache       = ( ( (double) Monitor.numCacheHits / (double) Monitor.numHTTPRequests ) * 100.0 );
-        double percentMissCache      = ( ( (double) Monitor.numGitHubRequests / (double) Monitor.numHTTPRequests ) * 100.0 );
-        double percentErrorRequest   = ( ( (double) Monitor.numErrorRequests / (double) Monitor.numHTTPRequests ) * 100.0 );
-        double avgRequestTime        = ( ( (double) Monitor.totalRequestTime / (double) Monitor.numHTTPRequests ) );
+        if ( Monitor.numHTTPRequests > 0 ) {
+            percentHitCache         = (((double) Monitor.numCacheHits       / (double) Monitor.numHTTPRequests) * 100.0);
+            percentMissCache        = (((double) Monitor.numGitHubRequests  / (double) Monitor.numHTTPRequests) * 100.0);
+            percentErrorRequest     = (((double) Monitor.numErrorRequests   / (double) Monitor.numHTTPRequests) * 100.0);
+            avgRequestTime          = (((double) Monitor.totalRequestTime   / (double) Monitor.numHTTPRequests));
+        } else {
+            percentHitCache         = 0;
+            percentMissCache        = 0;
+            percentErrorRequest     = 0;
+            avgRequestTime          = 0;
+        }
 
         // DecimalFormat object (with two decimals)
         DecimalFormat df = new DecimalFormat("#.##");

@@ -1,5 +1,5 @@
 # githubcontributors
-Current Version: 1.0.3
+Current Version: 1.0.4
 
 ![GitHub Contributors](http://www.aha.io/assets/integration_logos/github-bb449e0ffbacbcb7f9c703db85b1cf0b.png)
 
@@ -9,10 +9,10 @@ Current Version: 1.0.3
 gradle fatJar
 
 # And run!!
-java -Dlog4j.configurationFile=conf/log4j2.xml -jar build/libs/githubContributors-1.0.2.jar
+java -Dlog4j.configurationFile=conf/log4j2.xml -jar build/libs/githubContributors-1.0.4.jar
 ```
 
-## Config And port
+## Config, host and service port
 Service is running HTTPService by default in port 8080, and host is "localhost", but you can change
 it for production environment. Of course you can change to port 80 if you have a root privileges in
 the machine.
@@ -20,17 +20,25 @@ the machine.
 You can config the service properties in the file "conf/configuration.properties"
 
 Default values:
-```text
+```properties
 HttpServicePort=8080
 HazelCastGroup=GitHubContributors
+TokenAuthEnabled=true
+# Defined hostname for production environment
 ServiceHttpHost=localhost
+# Only enabled for debug environment
+TokenGeneratorEnabled=true
 ```
 
 Example environment values:
-```text
+```properties
 HttpServicePort=80
 HazelCastGroup=GitHubContributors
+TokenAuthEnabled=true
+# Defined hostname for production environment
 ServiceHttpHost=githubcontributors.com
+# Only enabled for debug environment
+TokenGeneratorEnabled=false
 ```
 
 ## Request samples
@@ -122,6 +130,85 @@ You can specify operations top operations with number less or equals than 50, fo
 ]
 ```
 
+### Requests with token
+
+The last service version support requests with token. Additional parameters to send:
+ - expireTime: unixtime (UTC), represented in millis, when the request will expire
+ - token: hash generated (SHA1) with the request segments, a private key ("NewRelicGo" by default) 
+   and expireTime parameter.
+
+Sample code to generate Token:
+```java
+public static String generateToken ( String topOperation , String location , String expireTime ) {
+    // Generate string with parameters and private key
+    StringBuilder stringBuilder = new StringBuilder(topOperation)
+            .append(location).append(expireTime).append(Configuration.TokenPrivateKey);
+
+    // Apply Sha1 on the generated hash
+    return DigestUtils.sha1Hex(stringBuilder.toString());
+}
+```
+
+Sample request with expireTime and token parameters: 
+- http://localhost:8080/top11/Madrid?token=99a56001ae5826a20adf43e65bd374068487b812&expireTime=1491340898641
+
+#### Token Generator
+
+In a staging scenario, in order to debug token, "tokenGenerator" request is available; it means, the
+service can generate a token and expireTime if you need it.
+
+How to do:
+- http://localhost:8080/tokenGenerator/top11/Madrid?expireTime=1491340898641
+```json
+{
+    "message": "Generated token for defined parameters",
+    "token": "99a56001ae5826a20adf43e65bd374068487b812",
+    "expireTime": "1491340898641"
+}
+```
+
+You can ignore the parameter expireTime, and the tokenGenerator will generate a one hour valid token:
+- http://localhost:8080/tokenGenerator/top5/Madrid
+```json
+{
+    "message": "Generated token for defined parameters",
+    "token": "817069af8e348207d469c99e00be938e342ab728",
+    "expireTime": "1491342022491"
+}
+```
+
+And finally, you can do the request to the service to get top 5 contributors in Madrid:
+- http://localhost:8080/top5/Madrid?token=817069af8e348207d469c99e00be938e342ab728&expireTime=1491342022491
+```json
+[
+    {
+    "userId": 7282030,
+    "login": "jeperez",
+    "location": "Madrid"
+    },
+    {
+    "userId": 2581243,
+    "login": "cgvarela",
+    "location": "Madrid"
+    },
+    {
+    "userId": 568585,
+    "login": "Endika",
+    "location": "Madrid"
+    },
+    {
+    "userId": 1699368,
+    "login": "aitoroses",
+    "location": "Madrid"
+    },
+    {
+    "userId": 5978927,
+    "login": "Arakiss",
+    "location": "Madrid"
+    }
+]
+```
+
 ## Scale
 The Github Contributors Service can scale with multiple nodes really fast.
 Each Github Contributors node have a HazelCast instance in order to share data between the different 
@@ -160,6 +247,15 @@ In the tcp-ip block, you can configure the different nodes, for example, for a 3
 * 192.168.1.10 // Node 1
 * 192.168.1.11 // Node 2
 * node3.example.com // Node 3 defined with a domain
+
+### Fast HazelCast test
+
+In order to check how is running different nodes with HazelCast, you can run the same service 
+with different API ports in the same machine, and do request in the different services.
+
+Is really easy to see when service is doing Hit or Miss in the different caches. A fast scenario 
+is do a request for new location in the first service, and then send the same request in the second,
+to see how in the second service is causing a hit in the cache.
 
 ## High Performance
 The service use light and fast libraries in order to have nice performance; the idea is use small and 
@@ -247,7 +343,8 @@ Service logger show KPIs about the Service each minute like the sample:
 2017-04-04 08:08:23,667 INFO (MonitorInfo.java:28):  > Total GitHub Requests:   3 (7.5%)
 2017-04-04 08:08:23,667 INFO (MonitorInfo.java:29):  > Total Error Requests:    1 (2.5%)
 2017-04-04 08:08:23,667 INFO (MonitorInfo.java:30):  > Avg. request time:       61.175ms
-2017-04-04 08:08:23,683 INFO (MonitorInfo.java:31):  > Cache Contributors size: 3
+2017-04-04 22:43:18,127 INFO (MonitorInfo.java:38):  > Cache Updated Tasks:     3
+2017-04-04 22:43:18,128 INFO (MonitorInfo.java:39):  > Cache Contributors size: 3
 2017-04-04 08:08:23,684 INFO (MonitorInfo.java:32):  > Hazelcast nodes:         1
 2017-04-04 08:08:23,684 INFO (MonitorInfo.java:33): ****************************************************
 ```
@@ -258,12 +355,12 @@ Service logger show KPIs about the Service each minute like the sample:
 - GSON (Google): Lib to generate Json messages
 - Caffeine Libs: Local Cache - Level 1 (in order to improve performance for a Cache Hits, it is better than HazelCast solution)
 - HazelCast: Distributed Cache - Level 2 (in order to scale with more nodes, and cache response from GitHub API)
+- Commons-Codec: Lib to generate sha1 hash from string value (token generation)
 
 ## Benchmark tools
 - wrk: wrk is a modern HTTP benchmarking tool capable of generating significant load when run on a 
 single multi-core CPU. It combines a multithreaded design with scalable event notification systems 
 such as epoll and kqueue. More info: https://github.com/wg/wrk
-
 
 ## Author
 Miguel Ángel Zambrana

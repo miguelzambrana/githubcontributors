@@ -73,10 +73,7 @@ public class GitHubInterface {
                     } else {
                         // If totalCount is 0, we can break here...
                         // Create ContributorsException and throw up
-                        ContributorsException contributorsException =
-                                new ContributorsException("GitHub API returns 0 entries for location " + location, 1004);
-
-                        throw contributorsException;
+                        throw new ContributorsException("GitHub API returns 0 entries for location " + location, 1004);
                     }
                 }
                 else {
@@ -84,10 +81,7 @@ public class GitHubInterface {
                     String apiMessage = jsonResponse.getBody().getObject().getString("message");
 
                     // Create ContributorsException and throw up
-                    ContributorsException contributorsException =
-                            new ContributorsException("GitHub API Message: " + apiMessage, 1005);
-
-                    throw  contributorsException;
+                    throw new ContributorsException("GitHub API Message: " + apiMessage, 1005);
                 }
             }
 
@@ -95,16 +89,10 @@ public class GitHubInterface {
             throw e;
         } catch (UnirestException e) {
             // Create ContributorsException and throw up
-            ContributorsException contributorsException =
-                    new ContributorsException("Unirest Lib Exception: " + e.getMessage(), 1006);
-
-            throw  contributorsException;
+            throw new ContributorsException("Unirest Lib Exception: " + e.getMessage(), 1006);
         } catch (Exception e) {
             // Create ContributorsException and throw up
-            ContributorsException contributorsException =
-                    new ContributorsException("Abnormal behaviour: " + e.getMessage(), 1007);
-
-            throw  contributorsException;
+            throw new ContributorsException("Abnormal behaviour: " + e.getMessage(), 1007);
         }
 
         return topUsers;

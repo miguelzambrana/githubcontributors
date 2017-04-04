@@ -2,6 +2,7 @@ package com.miguelzambrana.githubcontributors.httpservice;
 
 import com.miguelzambrana.githubcontributors.httpservice.handlers.GitHubHandler;
 import com.miguelzambrana.githubcontributors.httpservice.handlers.HelloHandler;
+import com.miguelzambrana.githubcontributors.httpservice.handlers.TokenHandler;
 import com.miguelzambrana.githubcontributors.httpservice.handlers.VersionHandler;
 import com.miguelzambrana.githubcontributors.configuration.Configuration;
 import io.undertow.Handlers;
@@ -23,7 +24,6 @@ public class HTTPService {
     public static void startHTTPService ()
     {
         // Create Undertow service on defined port
-        // TODO Set port defined by Properties
         Undertow server = Undertow.builder()
                 .addHttpListener(Configuration.HttpServicePort, Configuration.ServiceHttpHost)
                 .setHandler(HTTPService.getHandlerChain())
@@ -35,9 +35,10 @@ public class HTTPService {
 
         // Define path template
         HttpHandler pathHandler = Handlers.pathTemplate()
-                .add("/{topUsers}/{location}"   , new GitHubHandler())
-                .add("/version"                 , new VersionHandler())
-                .add(""                         , new HelloHandler());
+                .add("/{topUsers}/{location}"                   , new GitHubHandler())
+                .add("/tokenGenerator/{topUsers}/{location}"    , new TokenHandler())
+                .add("/version"                                 , new VersionHandler())
+                .add(""                                         , new HelloHandler());
 
         // Set response headers Handle
         HttpHandler headerHandler = headerHandler(pathHandler);

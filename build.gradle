@@ -6,7 +6,7 @@ apply plugin: 'application'
 apply plugin: 'maven'
 
 def name = "githubContributors"
-def curVersion = "1.0.3"
+def curVersion = "1.0.4"
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -43,6 +43,7 @@ dependencies {
     compile group: 'io.undertow', name: 'undertow-core', version: '1.4.11.Final'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'com.hazelcast', name: 'hazelcast', version: '3.8'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
     compile 'com.github.ben-manes.caffeine:caffeine:2.4.0'
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.+'

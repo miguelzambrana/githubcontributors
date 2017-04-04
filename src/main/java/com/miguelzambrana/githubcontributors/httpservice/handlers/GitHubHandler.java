@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.miguelzambrana.githubcontributors.bean.ErrorMessage;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
 import com.miguelzambrana.githubcontributors.cache.TopContributorsCache;
+import com.miguelzambrana.githubcontributors.configuration.Configuration;
 import com.miguelzambrana.githubcontributors.exception.ContributorsException;
 import com.miguelzambrana.githubcontributors.monitor.Monitor;
+import com.miguelzambrana.githubcontributors.token.TokenBuilder;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
@@ -36,23 +38,26 @@ public class GitHubHandler implements HttpHandler {
 
         try
         {
-            // Get paths from request
-            String[] paths = exchange.getRequestPath().split("/");
-
-            // Request segments
+            // Request segments and parameters
             String sOperation = "";
             String sLocation  = "";
+            String expireTime = null;
+            String token      = null;
 
-            // Get query segments from request path
-            int currentSegment = 0;
-            for ( String currentPath : paths ) {
-                if (!StringUtils.isEmpty(currentPath)) {
-                    switch ( currentSegment ) {
-                        case 0: sOperation = currentPath.toLowerCase(); break;
-                        case 1: sLocation  = currentPath; break;
-                    }
-                    currentSegment++;
-                }
+            // Get query segments from query parameters
+            if (!exchange.getQueryParameters().isEmpty()) {
+
+                if ( exchange.getQueryParameters().get("topUsers") != null )
+                     sOperation   = exchange.getQueryParameters().get("topUsers").element();
+
+                if ( exchange.getQueryParameters().get("location") != null )
+                     sLocation    = exchange.getQueryParameters().get("location").element();
+
+                if ( exchange.getQueryParameters().get("expireTime") != null )
+                     expireTime   = exchange.getQueryParameters().get("expireTime").element();
+
+                if ( exchange.getQueryParameters().get("token") != null )
+                     token        = exchange.getQueryParameters().get("token").element();
             }
 
             if ( StringUtils.isEmpty(sOperation) || StringUtils.isEmpty(sLocation) )
@@ -65,32 +70,25 @@ public class GitHubHandler implements HttpHandler {
             }
             else
             {
+                // If Token is enabled, we need to check values
+                if ( Configuration.TokenAuthEnabled )
+                {
+                    if ( !TokenBuilder.validExpireTime ( expireTime , initTime ) ) {
+                        // If token has expire, notify to user
+                        throw new ContributorsException("ExpireTime has expired, you need to renew token", 1011);
+                    }
+
+                    if ( !TokenBuilder.validToken ( token , sOperation , sLocation , expireTime ) ) {
+                        // If token is not valid, we need to show it
+                        throw new ContributorsException("Token is not valid for current request", 1010);
+                    }
+                }
+
                 // If we have location, get it from Cache
                 List<GitHubUserBean> topUsers = TopContributorsCache.getTopUsers(sLocation);
 
                 // Operation number to search
-                int topOperationUsers;
-
-                // If operation starts with top (top5, top10, top30, top50)
-                if ( sOperation.startsWith("top") ) {
-                    // Get Number of users
-                    topOperationUsers = Integer.valueOf(sOperation.replace("top", ""));
-                } else {
-                    // If some strange exception catch, throw up
-                    ContributorsException contributorsException =
-                            new ContributorsException ( "Operation Unknown, it should be like top5, top10, top50,..." , 1001 );
-
-                    throw contributorsException;
-                }
-
-                // More than top 50 is not allowed...
-                if ( ( topOperationUsers > 50 ) || ( topOperationUsers <= 0 ) ) {
-                    // If some strange exception catch, throw up
-                    ContributorsException contributorsException =
-                            new ContributorsException ( "Operation with more than top50 or negative is not allowed" , 1002 );
-
-                    throw contributorsException;
-                }
+                int topOperationUsers = getTopOperationUsers ( sOperation );
 
                 // Result list to show
                 List<GitHubUserBean> currentList;
@@ -128,7 +126,7 @@ public class GitHubHandler implements HttpHandler {
         catch (Exception e)
         {
             // Create message response bean
-            ErrorMessage errorMessage = new ErrorMessage ( e.getMessage() , -1 );
+            ErrorMessage errorMessage = new ErrorMessage ( "Service Exception: " + e.getMessage() , -1 );
 
             // Create JSON result from message
             String jsonResponse = new Gson().toJson(errorMessage);
@@ -148,6 +146,28 @@ public class GitHubHandler implements HttpHandler {
             // Add request time to Monitor
             Monitor.addRequestTime(requestTime);
         }
+    }
+
+    public int getTopOperationUsers ( String sOperation ) throws ContributorsException
+    {
+        int topOperationUsers;
+
+        // If operation starts with top (top5, top10, top30, top50)
+        if ( sOperation.startsWith("top") ) {
+            // Get Number of users
+            topOperationUsers = Integer.valueOf(sOperation.replace("top", ""));
+        } else {
+            // If some strange exception catch, throw up
+            throw new ContributorsException ( "Operation Unknown, it should be like top5, top10, top50,..." , 1001 );
+        }
+
+        // More than top 50 is not allowed...
+        if ( ( topOperationUsers > 50 ) || ( topOperationUsers <= 0 ) ) {
+            // If some strange exception catch, throw up
+            throw new ContributorsException ( "Operation with more than top50 or negative is not allowed" , 1002 );
+        }
+
+        return topOperationUsers;
     }
 
 }

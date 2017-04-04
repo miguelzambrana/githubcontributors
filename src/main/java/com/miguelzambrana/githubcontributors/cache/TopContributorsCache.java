@@ -88,10 +88,7 @@ public class TopContributorsCache {
         }
         catch ( Exception e ) {
             // If some strange exception catch, throw up
-            ContributorsException contributorsException =
-                    new ContributorsException ( "Unknown behaviour: " + e.getMessage() , 1003 );
-
-            throw contributorsException;
+            throw new ContributorsException ( "Unknown behaviour: " + e.getMessage() , 1003 );
         }
 
         // Return top users

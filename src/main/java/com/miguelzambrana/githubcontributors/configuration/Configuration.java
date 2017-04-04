@@ -21,8 +21,11 @@ public class Configuration
     public  static int              ThreadExecutorPoolSize  = 32;
     public  static int              ThreadExecutorQueueSize = 1000000;
     public  static String           ServiceHttpHost         = "localhost";
+    public  static boolean          TokenAuthEnabled        = true;
+    public  static boolean          TokenGeneratorEnabled   = true;
+    public  static String           TokenPrivateKey         = "NewRelicGo";
 
-    public  static final String     ServiceVersion          = "1.0.3";
+    public  static final String     ServiceVersion          = "1.0.4";
     public  static final String     ConfigFileName          = "./conf/configuration.properties";
 
     private static Properties       properties = null;
