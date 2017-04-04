@@ -14,7 +14,8 @@ java -Dlog4j.configurationFile=conf/log4j2.xml -jar build/libs/githubContributor
 
 ## Config And port
 Service is running HTTPService by default in port 8080, and host is "localhost", but you can change
-it for production environment.
+it for production environment. Of course you can change to port 80 if you have a root privileges in
+the machine.
 
 You can config the service properties in the file "conf/configuration.properties"
 
@@ -25,15 +26,22 @@ HazelCastGroup=GitHubContributors
 ServiceHttpHost=localhost
 ```
 
+Example environment values:
+```text
+HttpServicePort=80
+HazelCastGroup=GitHubContributors
+ServiceHttpHost=githubcontributors.com
+```
+
 ## Request samples
 
 ### Version
 
 Version Request
 
-- http://localhost:8090/version
+- http://localhost:8080/version
 ```text
-1.0.2
+GitHubContributorsService v1.0.3
 ```
 
 ### Top Requests
@@ -43,16 +51,16 @@ Top Request need to send the following segments:
 * location (or city)
 
 The request should by like the samples:
-* http://localhost:8090/top5/Malaga
-* http://localhost:8090/top10/Barcelona
-* http://localhost:8090/top25/Barcelona
-* http://localhost:8090/top50/New York
+* http://localhost:8080/top5/Malaga
+* http://localhost:8080/top10/Barcelona
+* http://localhost:8080/top25/Barcelona
+* http://localhost:8080/top50/New York
 
 You can specify operations top operations with number less or equals than 50, for example:
 * top5, top10, top20, top25, top50, top8, top2, top15, ...
 
 #### Some samples
-- http://localhost:8090/top5/Malaga
+- http://localhost:8080/top5/Malaga
 ```json
 [
     {
@@ -83,7 +91,7 @@ You can specify operations top operations with number less or equals than 50, fo
 ]
 ```
 
-- http://localhost:8090/top5/Barcelona
+- http://localhost:8080/top5/Barcelona
 ```json
 [
     {

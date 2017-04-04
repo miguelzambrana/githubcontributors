@@ -19,7 +19,7 @@ public class VersionHandler implements HttpHandler {
         }
 
         // Show Service version
-        String version = Configuration.ServiceVersion;
+        String version = "GitHubContributorsService v" + Configuration.ServiceVersion;
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
         exchange.getResponseSender().send(version);
     }
