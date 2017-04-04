@@ -5,6 +5,9 @@ Current Version: 1.0.4
 
 ## How to build
 ```text
+# Test Service
+gradle test
+
 # Build the artifact
 gradle fatJar
 

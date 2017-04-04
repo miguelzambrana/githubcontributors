@@ -51,3 +51,20 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+test
+{
+    include 'com/miguelzambrana/githubcontributors/SuiteTests.class'
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        showCauses true
+        showExceptions true
+        showStackTraces true
+    }
+
+    // listen to events in the test execution lifecycle
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+}
