@@ -19,7 +19,7 @@ public class Configuration
     public  static int              HttpServicePort         = 8080;
     public  static String           HazelCastGroup          = "GitHubContributors";
 
-    public  static final String     ServiceVersion          = "1.0.1";
+    public  static final String     ServiceVersion          = "1.0.2";
     public  static final String     ConfigFileName          = "./conf/configuration.properties";
     private static Properties       properties = null;
 

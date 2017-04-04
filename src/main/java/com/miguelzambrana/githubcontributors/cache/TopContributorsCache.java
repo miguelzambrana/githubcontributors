@@ -3,6 +3,7 @@ package com.miguelzambrana.githubcontributors.cache;
 import com.hazelcast.core.IMap;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
 import com.miguelzambrana.githubcontributors.githubapi.GitHubInterface;
+import com.miguelzambrana.githubcontributors.exceptions.ContributorsException;
 import com.miguelzambrana.githubcontributors.monitor.Monitor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,13 +21,13 @@ public class TopContributorsCache {
 
     public static final Logger logger = LogManager.getLogger(TopContributorsCache.class.getName());
 
-    public static List<GitHubUserBean> getTopUsers ( String location ) {
+    public static List<GitHubUserBean> getTopUsers ( String location ) throws ContributorsException {
 
         // Define GitHubUser list
         List<GitHubUserBean> topUsers = null;
 
-        try {
-
+        try
+        {
             // Get Result Top List from Cache
             topUsers = hazelcastMap.get(location);
 
@@ -49,11 +50,24 @@ public class TopContributorsCache {
                  hazelcastMap.put(location, topUsers, 1, TimeUnit.HOURS);
             }
 
-        } catch ( Exception e ) {
-            logger.error(e.getMessage());
+        } catch ( ContributorsException contributorsException ) {
+            // If catch some ContributorException, throw to Handler in order to show
+            throw contributorsException;
+        }
+        catch ( Exception e ) {
+            // If some strange exception catch, throw up
+            ContributorsException contributorsException =
+                    new ContributorsException ( "Unknown behaviour: " + e.getMessage() , 1003 );
+
+            throw contributorsException;
         }
 
         // Return top users
         return topUsers;
+    }
+
+    public static int cacheSize () {
+        // Return cache size (number of locations inserted on cache)
+        return hazelcastMap.size();
     }
 }

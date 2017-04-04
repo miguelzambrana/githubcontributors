@@ -5,6 +5,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.miguelzambrana.githubcontributors.bean.GitHubUserBean;
+import com.miguelzambrana.githubcontributors.exceptions.ContributorsException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -23,17 +24,18 @@ public class GitHubInterface {
      * @param location
      * @return
      */
-    public static List<GitHubUserBean> gitHubRequest ( String location ) {
+    public static List<GitHubUserBean> gitHubRequest ( String location ) throws ContributorsException {
 
         // Create empty user list
         List<GitHubUserBean> topUsers = new ArrayList<>();
 
         try
         {
+            // API Search Page
             int currentPage = 1;
 
-            // We try to get always top 50 users from GitHub search API
-            while ( topUsers.size() < 50 ) {
+            // We try to get always top 50 users from GitHub search API (From 2 first pages)
+            while ( ( topUsers.size() < 50 ) && ( currentPage < 3 ) ) {
 
                 // TODO OAuth to get more requests
 
@@ -48,31 +50,61 @@ public class GitHubInterface {
                         .queryString("page", currentPage)
                         .asJson();
 
-                // Get response total count
-                int totalCount = jsonResponse.getBody().getObject().getInt("total_count");
+                // Increment current page for the next search
+                currentPage++;
 
-                // If totalCount is bigger than 0, get users and put to list
-                if ( totalCount > 0 ) {
-                    // Explore items array...
-                    for (Object user : jsonResponse.getBody().getObject().getJSONArray("items")) {
-                        // Get Login and userId parameters from Json object
-                        String login = ((JSONObject) user).getString("login");
-                        int userId = ((JSONObject) user).getInt("id");
+                // If message response have total_count key, it means message is valid
+                if ( jsonResponse.getBody().getObject().has("total_count") ) {
+                    // Get response total count
+                    int totalCount = jsonResponse.getBody().getObject().getInt("total_count");
 
-                        // Add current user to list
-                        GitHubUserBean gitHubUserBean = new GitHubUserBean(userId, login, location);
-                        topUsers.add(gitHubUserBean);
+                    // If totalCount is bigger than 0, get users and put to list
+                    if (totalCount > 0) {
+                        // Explore items array...
+                        for (Object user : jsonResponse.getBody().getObject().getJSONArray("items")) {
+                            // Get Login and userId parameters from Json object
+                            String login = ((JSONObject) user).getString("login");
+                            int userId = ((JSONObject) user).getInt("id");
+
+                            // Add current user to list
+                            GitHubUserBean gitHubUserBean = new GitHubUserBean(userId, login, location);
+                            topUsers.add(gitHubUserBean);
+                        }
+                    } else {
+                        // If totalCount is 0, we can break here...
+                        // Create ContributorsException and throw up
+                        ContributorsException contributorsException =
+                                new ContributorsException("GitHub API returns 0 entries for location " + location, 1004);
+
+                        throw contributorsException;
                     }
-                } else {
-                    // If totalCount is 0, we can break here...
-                    break;
+                }
+                else {
+                    // Get Github api message
+                    String apiMessage = jsonResponse.getBody().getObject().getString("message");
+
+                    // Create ContributorsException and throw up
+                    ContributorsException contributorsException =
+                            new ContributorsException("GitHub API Message: " + apiMessage, 1005);
+
+                    throw  contributorsException;
                 }
             }
 
+        } catch (ContributorsException e) {
+            throw e;
         } catch (UnirestException e) {
-            e.printStackTrace();
+            // Create ContributorsException and throw up
+            ContributorsException contributorsException =
+                    new ContributorsException("Unirest Lib Exception: " + e.getMessage(), 1006);
+
+            throw  contributorsException;
         } catch (Exception e) {
-            e.printStackTrace();
+            // Create ContributorsException and throw up
+            ContributorsException contributorsException =
+                    new ContributorsException("Abnormal behaviour: " + e.getMessage(), 1007);
+
+            throw  contributorsException;
         }
 
         return topUsers;

@@ -1,5 +1,7 @@
 package com.miguelzambrana.githubcontributors.monitor;
 
+import com.miguelzambrana.githubcontributors.cache.CacheClient;
+import com.miguelzambrana.githubcontributors.cache.TopContributorsCache;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,11 +22,14 @@ class MonitorInfo implements Runnable {
         float percentErrorRequest   = (float) ( ( (double) Monitor.numErrorRequests / (double) Monitor.numHTTPRequests ) * 100.0 );
         float avgRequestTime        = (float) ( ( (double) Monitor.totalRequestTime / (double) Monitor.numHTTPRequests ) );
 
-        logger.info("**********************************************");
-        logger.info(" Total HTTP Requests:   " + Monitor.numHTTPRequests );
-        logger.info(" Total Hit Cache:       " + Monitor.numCacheHits + " (" + percentHitCache + "%)" );
-        logger.info(" Total GitHub Requests: " + Monitor.numGitHubRequests + " (" + percentMissCache + "%)" );
-        logger.info(" Total Error Requests:  " + Monitor.numErrorRequests + " (" + percentErrorRequest + "%)" );
-        logger.info(" Avg. request time:     " + avgRequestTime + "ms" );
+        logger.info("** Monitor Report **********************************");
+        logger.info(" > Total HTTP Requests:     " + Monitor.numHTTPRequests );
+        logger.info(" > Total Hit Cache:         " + Monitor.numCacheHits + " (" + percentHitCache + "%)" );
+        logger.info(" > Total GitHub Requests:   " + Monitor.numGitHubRequests + " (" + percentMissCache + "%)" );
+        logger.info(" > Total Error Requests:    " + Monitor.numErrorRequests + " (" + percentErrorRequest + "%)" );
+        logger.info(" > Avg. request time:       " + avgRequestTime + "ms" );
+        logger.info(" > Cache Contributors size: " + TopContributorsCache.cacheSize() );
+        logger.info(" > Hazelcast nodes:         " + CacheClient.getInstance().getHazelcastNodes() );
+        logger.info("****************************************************");
     }
 }

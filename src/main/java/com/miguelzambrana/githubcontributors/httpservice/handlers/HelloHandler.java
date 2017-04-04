@@ -11,6 +11,7 @@ public class HelloHandler implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
+        // Non-bloq request
         if (exchange.isInIoThread()) {
             exchange.dispatch(this);
             return;

@@ -45,6 +45,11 @@ public class CacheClient
         }
     }
 
+    public int getHazelcastNodes ()
+    {
+        return Hazelcast.getAllHazelcastInstances().size();
+    }
+
     public void closeClient ()
     {
         HazelcastInstance instance = Hazelcast.getHazelcastInstanceByName(Configuration.HazelCastGroup);
