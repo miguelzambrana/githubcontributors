@@ -95,7 +95,7 @@ public class GitHubHandler implements HttpHandler {
                 // Result list to show
                 List<GitHubUserBean> currentList;
 
-                if ( topOperationUsers > topUsers.size() ) {
+                if ( topOperationUsers <= topUsers.size() ) {
                     // Get sublist for current top users
                     currentList = topUsers.subList(0, topOperationUsers);
                 } else {
