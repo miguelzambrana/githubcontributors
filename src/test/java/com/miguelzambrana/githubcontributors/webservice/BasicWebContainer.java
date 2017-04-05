@@ -48,7 +48,7 @@ public class BasicWebContainer extends TestCase
 
         String responseWebContainer = BasicWebContainer.simpleRequest(url);
 
-        assertEquals("{\"errorMessage\":\"Token is not valid for current request\",\"errorCode\":1010}", responseWebContainer);
+        assertEquals("{\"errorMessage\":\"Token is not valid for current request\",\"errorCode\":1012}", responseWebContainer);
     }
 
     @Test
