@@ -47,9 +47,6 @@ public class GitHubInterface {
                         .queryString("sort", "repositories")
                         .queryString("order", "desc")
                         .queryString("page", currentPage)
-                        .queryString("access_token", Configuration.GitHubAccessToken)
-                        .queryString("scope","")
-                        .queryString("token_type","bearer")
                         .asJson();
 
                 // Increment current page for the next search

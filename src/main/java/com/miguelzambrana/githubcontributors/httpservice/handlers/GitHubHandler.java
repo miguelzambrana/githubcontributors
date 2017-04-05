@@ -48,7 +48,7 @@ public class GitHubHandler implements HttpHandler {
             if (!exchange.getQueryParameters().isEmpty()) {
 
                 if ( exchange.getQueryParameters().get("topUsers") != null )
-                     sOperation   = exchange.getQueryParameters().get("topUsers").element();
+                     sOperation   = exchange.getQueryParameters().get("topUsers").element().toLowerCase();
 
                 if ( exchange.getQueryParameters().get("location") != null )
                      sLocation    = exchange.getQueryParameters().get("location").element();
