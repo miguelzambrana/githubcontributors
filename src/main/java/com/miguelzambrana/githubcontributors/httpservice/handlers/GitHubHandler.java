@@ -73,6 +73,11 @@ public class GitHubHandler implements HttpHandler {
                 // If Token is enabled, we need to check values
                 if ( Configuration.TokenAuthEnabled )
                 {
+                    if ( StringUtils.isEmpty(expireTime) || StringUtils.isEmpty(token) ) {
+                        // If token or expireTime is empty, notify to user
+                        throw new ContributorsException("Parameters token and expireTime are mandatory", 1010);
+                    }
+
                     if ( !TokenBuilder.validExpireTime ( expireTime , initTime ) ) {
                         // If token has expire, notify to user
                         throw new ContributorsException("ExpireTime has expired, you need to renew token", 1011);
@@ -80,7 +85,7 @@ public class GitHubHandler implements HttpHandler {
 
                     if ( !TokenBuilder.validToken ( token , sOperation , sLocation , expireTime ) ) {
                         // If token is not valid, we need to show it
-                        throw new ContributorsException("Token is not valid for current request", 1010);
+                        throw new ContributorsException("Token is not valid for current request", 1012);
                     }
                 }
 
