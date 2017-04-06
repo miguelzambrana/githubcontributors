@@ -1,7 +1,7 @@
 # githubcontributors
 Current Version: 1.0.4
 
-![GitHub Contributors](http://www.aha.io/assets/integration_logos/github-bb449e0ffbacbcb7f9c703db85b1cf0b.png)
+![GitHub Contributors](http://josefinaaraya.com/wp-content/uploads/2016/09/GitHub1.jpg)
 
 ## How to build
 ```text
