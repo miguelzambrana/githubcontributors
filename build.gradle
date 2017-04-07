@@ -6,7 +6,7 @@ apply plugin: 'application'
 apply plugin: 'maven'
 
 def name = "githubContributors"
-def curVersion = "1.0.4"
+def curVersion = "1.0.5"
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

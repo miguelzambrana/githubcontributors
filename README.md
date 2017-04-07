@@ -1,5 +1,5 @@
 # githubcontributors
-Current Version: 1.0.4
+Current Version: 1.0.5
 
 ![GitHub Contributors](http://josefinaaraya.com/wp-content/uploads/2016/09/GitHub1.jpg)
 
@@ -12,7 +12,7 @@ gradle test
 gradle fatJar
 
 # And run!!
-java -Dlog4j.configurationFile=conf/log4j2.xml -jar build/libs/githubContributors-1.0.4.jar
+java -Dlog4j.configurationFile=conf/log4j2.xml -jar build/libs/githubContributors-1.0.5.jar
 ```
 
 ## Config, host and service port
@@ -23,6 +23,7 @@ the machine.
 Properties Values:
 - HttpServicePort: HTTP Service listening port
 - HazelCastGroup: HazelCast cache group (for connect between nodes)
+- BasicAuthEnabled: Enable BasicAuth
 - TokenAuthEnabled: Mandatory token use in the API requests
 - ServiceHttpHost: Host Service name (localhost in stage environment)
 - TokenGeneratorEnabled: Enable module to generate token for different requests
@@ -33,18 +34,24 @@ Default values:
 ```properties
 HttpServicePort=8080
 HazelCastGroup=GitHubContributors
-TokenAuthEnabled=true
+# Service with BasicAuth
+BasicAuthEnabled=true
+# GitHub Access Token to send request to GitHub API
+TokenAuthEnabled=false
 # Defined hostname for production environment
 ServiceHttpHost=localhost
 # Only enabled for debug environment
-TokenGeneratorEnabled=true
+TokenGeneratorEnabled=false
 ```
 
 Example environment values:
 ```properties
 HttpServicePort=80
 HazelCastGroup=GitHubContributors
-TokenAuthEnabled=true
+# Service with BasicAuth
+BasicAuthEnabled=true
+# GitHub Access Token to send request to GitHub API
+TokenAuthEnabled=false
 # Defined hostname for production environment
 ServiceHttpHost=githubcontributors.com
 # Only enabled for debug environment
@@ -59,7 +66,7 @@ Version Request
 
 - http://localhost:8080/version
 ```text
-GitHubContributorsService v1.0.4
+GitHubContributorsService v1.0.5
 ```
 
 ### Top Requests
@@ -161,6 +168,12 @@ public static String generateToken ( String topOperation , String location , Str
 
 Sample request with expireTime and token parameters: 
 - http://localhost:8080/top11/Madrid?token=99a56001ae5826a20adf43e65bd374068487b812&expireTime=1491340898641
+
+#### Basic Auth
+
+The users and password list for BasicAuth is the following:
+- user: newrelic / password: challenge
+- user: miki / password: simplepass
 
 #### Token Generator
 
